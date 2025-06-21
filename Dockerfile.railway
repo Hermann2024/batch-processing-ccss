@@ -1,28 +1,14 @@
-# Dockerfile optimisé pour Railway
-FROM openjdk:17-jre-slim
-
-# Créer l'utilisateur non-root
-RUN addgroup --system javauser && adduser --system --ingroup javauser javauser
-
-# Définir le répertoire de travail
+# Étape 1 : Build du JAR avec Maven
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Copier le JAR de l'application
-COPY target/batch-processing-*.jar app.jar
-
-# Créer les répertoires nécessaires
-RUN mkdir -p /tmp/output /app/logs && \
-    chown -R javauser:javauser /app /tmp/output /app/logs
-
-# Changer vers l'utilisateur non-root
-USER javauser
-
-# Exposer le port
+# Étape 2 : Image d'exécution légère
+FROM openjdk:17-jre-slim
+WORKDIR /app
+COPY --from=build /app/target/batch-processing-*.jar app.jar
+USER nobody
 EXPOSE 8080
-
-# Variables d'environnement pour Railway
 ENV SPRING_PROFILES_ACTIVE=railway
-ENV JAVA_OPTS="-Xmx512m -Xms256m"
-
-# Commande de démarrage
 CMD ["java", "-jar", "app.jar"] 
