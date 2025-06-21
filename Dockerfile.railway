@@ -1,4 +1,4 @@
-# Dockerfile Railway optimisé et fiable
+# Dockerfile Railway ultra-simple
 FROM openjdk:17-jre-slim
 
 # Créer l'utilisateur non-root
@@ -7,17 +7,8 @@ RUN addgroup --system javauser && adduser --system --ingroup javauser javauser
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Installer Maven pour le build
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
-
-# Copier les sources
-COPY . .
-
-# Builder l'application
-RUN mvn clean package -DskipTests
-
-# Supprimer Maven pour réduire la taille de l'image
-RUN apt-get remove -y maven && apt-get autoremove -y && apt-get clean
+# Copier le JAR pré-compilé (on va le pré-compiler localement)
+COPY target/batch-processing-*.jar app.jar
 
 # Créer les répertoires nécessaires
 RUN mkdir -p /tmp/output /app/logs && \
@@ -34,4 +25,4 @@ ENV SPRING_PROFILES_ACTIVE=railway
 ENV JAVA_OPTS="-Xmx512m -Xms256m"
 
 # Commande de démarrage
-CMD ["java", "-jar", "target/batch-processing-*.jar"] 
+CMD ["java", "-jar", "app.jar"] 
