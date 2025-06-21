@@ -1,5 +1,5 @@
 # Dockerfile Railway ultra-simple
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre
 
 # Créer l'utilisateur non-root
 RUN addgroup --system javauser && adduser --system --ingroup javauser javauser
