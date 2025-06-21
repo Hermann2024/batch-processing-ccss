@@ -1,14 +1,37 @@
-# Étape 1 : Build du JAR avec Maven
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+# Dockerfile Railway optimisé et fiable
+FROM openjdk:17-jre-slim
+
+# Créer l'utilisateur non-root
+RUN addgroup --system javauser && adduser --system --ingroup javauser javauser
+
+# Définir le répertoire de travail
 WORKDIR /app
+
+# Installer Maven pour le build
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+
+# Copier les sources
 COPY . .
+
+# Builder l'application
 RUN mvn clean package -DskipTests
 
-# Étape 2 : Image d'exécution légère
-FROM openjdk:17-jre-slim
-WORKDIR /app
-COPY --from=build /app/target/batch-processing-*.jar app.jar
-USER nobody
+# Supprimer Maven pour réduire la taille de l'image
+RUN apt-get remove -y maven && apt-get autoremove -y && apt-get clean
+
+# Créer les répertoires nécessaires
+RUN mkdir -p /tmp/output /app/logs && \
+    chown -R javauser:javauser /app /tmp/output /app/logs
+
+# Changer vers l'utilisateur non-root
+USER javauser
+
+# Exposer le port
 EXPOSE 8080
+
+# Variables d'environnement pour Railway
 ENV SPRING_PROFILES_ACTIVE=railway
-CMD ["java", "-jar", "app.jar"] 
+ENV JAVA_OPTS="-Xmx512m -Xms256m"
+
+# Commande de démarrage
+CMD ["java", "-jar", "target/batch-processing-*.jar"] 
