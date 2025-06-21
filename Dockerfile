@@ -1,21 +1,28 @@
-# Utiliser Java 17 avec OpenJDK
-FROM openjdk:17-jdk-slim
+# Dockerfile Railway ultra-simple
+FROM openjdk:17-jre-slim
+
+# Créer l'utilisateur non-root
+RUN addgroup --system javauser && adduser --system --ingroup javauser javauser
 
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Copier le fichier JAR de l'application
-COPY target/batch-processing-0.0.1-SNAPSHOT.jar app.jar
+# Copier le JAR pré-compilé (on va le pré-compiler localement)
+COPY target/batch-processing-*.jar app.jar
 
-# Créer le dossier de sortie pour les rapports
-RUN mkdir -p /app/output
+# Créer les répertoires nécessaires
+RUN mkdir -p /tmp/output /app/logs && \
+    chown -R javauser:javauser /app /tmp/output /app/logs
 
-# Exposer le port 8080
+# Changer vers l'utilisateur non-root
+USER javauser
+
+# Exposer le port
 EXPOSE 8080
 
-# Variables d'environnement pour la configuration
-ENV SPRING_PROFILES_ACTIVE=prod
+# Variables d'environnement pour Railway
+ENV SPRING_PROFILES_ACTIVE=railway
 ENV JAVA_OPTS="-Xmx512m -Xms256m"
 
-# Commande pour démarrer l'application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"] 
+# Commande de démarrage
+CMD ["java", "-jar", "app.jar"] 
