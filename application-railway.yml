@@ -1,0 +1,71 @@
+spring:
+  profiles:
+    active: railway
+  
+  # Configuration base de données PostgreSQL (Railway)
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  
+  # Configuration JPA/Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+  
+  # Configuration email
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp-mail.outlook.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  
+  # Configuration batch
+  batch:
+    job:
+      enabled: false  # Désactiver le lancement automatique au démarrage
+    jdbc:
+      initialize-schema: always
+
+# Configuration du serveur
+server:
+  port: ${PORT:8080}
+
+# Configuration du scheduler
+scheduling:
+  enabled: true
+  cron:
+    expression: "0 */5 * * * *"  # Toutes les 5 minutes (pour économiser les heures gratuites)
+
+# Configuration des logs
+logging:
+  level:
+    com.intech.batch: INFO
+    org.springframework.batch: INFO
+  file:
+    name: logs/app.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Configuration des rapports
+batch:
+  output:
+    directory: /tmp/output
+  email:
+    enabled: true
+    recipients: ${EMAIL_RECIPIENTS:admin@example.com}
+    subject: "Rapport Télétravail CCSS - ${batch.job.execution.date}" 

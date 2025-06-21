@@ -1,0 +1,32 @@
+# Configuration pour le scheduling automatique
+spring:
+  batch:
+    job:
+      enabled: false  # Désactiver le lancement automatique au démarrage
+  
+# Configuration du scheduling
+scheduling:
+  # Options de cron disponibles :
+  # - "0 * * * * *" : Toutes les minutes
+  # - "0 */5 * * * *" : Toutes les 5 minutes
+  # - "0 0 * * * *" : Toutes les heures
+  # - "0 0 9 * * *" : Tous les jours à 9h00
+  # - "0 0 9 * * MON-FRI" : Du lundi au vendredi à 9h00
+  cron:
+    expression: "0 * * * * *"  # Toutes les minutes
+    description: "Lancement automatique toutes les minutes"
+  
+  # Configuration des logs
+  logging:
+    level: INFO
+    file: logs/batch-scheduler.log
+    
+# Configuration de monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,scheduler
+  endpoint:
+    health:
+      show-details: always 

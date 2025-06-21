@@ -1,0 +1,83 @@
+spring:
+  application:
+    name: batch-processing-ccss
+  
+  # Configuration de la base de données MariaDB
+  datasource:
+    url: jdbc:mariadb://localhost:3306/rh
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: root
+    password: root
+  
+  # Configuration JPA
+  jpa:
+    hibernate:
+      ddl-auto: validate  # Ne pas recréer les tables, juste valider
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MariaDBDialect
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  
+  # Configuration H2 Console (pour visualiser les données)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  # Configuration Spring Batch
+  batch:
+    job:
+      enabled: false  # Désactive le lancement automatique des jobs
+    jdbc:
+      initialize-schema: always
+  
+  # Configuration Email
+  mail:
+    host: smtp-mail.outlook.com
+    port: 587
+    username: nanahermann@outlook.com
+    password: ${EMAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    default-encoding: UTF-8
+
+# Configuration du batch
+batch:
+  ccss:
+    output:
+      directory: ./output
+      filename: rapport_teletravail_ccss.csv
+    # Configuration pour le calcul du pourcentage
+    calculation:
+      # Jours considérés comme travaillés
+      working-days:
+        - NORMAL
+        - CP  # Congés payés
+        - CE  # Congés exceptionnels
+      # Jours considérés comme non travaillés
+      non-working-days:
+        - AB  # Absences
+        - P   # Pauses
+        - CS  # Congés sans solde
+        - MA  # Maladie
+        - MT  # Mise à pied
+    # Configuration email
+    email:
+      enabled: true
+      to: nanahermann@outlook.com
+      subject: "Rapport Télétravail CCSS - {mois}"
+      from: nanahermann@outlook.com
+
+# Configuration des logs
+logging:
+  level:
+    com.intech: DEBUG
+    org.springframework.batch: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n" 

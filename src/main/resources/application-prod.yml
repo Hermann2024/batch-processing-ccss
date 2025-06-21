@@ -1,0 +1,61 @@
+spring:
+  # Configuration de la base de données MariaDB pour la production
+  datasource:
+    url: jdbc:mariadb://localhost:3306/rh
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: root
+    password: root  # Mot de passe correct pour l'utilisateur root
+  
+  # Configuration JPA pour la production
+  jpa:
+    hibernate:
+      ddl-auto: none  # Désactive la validation stricte du schéma
+    show-sql: true  # Activer temporairement l'affichage SQL pour debug
+    properties:
+      hibernate:
+        format_sql: true  # Formater les requêtes SQL pour debug
+        dialect: org.hibernate.dialect.MariaDBDialect
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  
+  # Configuration Email pour Outlook/Live
+  mail:
+    host: smtp-mail.outlook.com
+    port: 587
+    username: ${MAIL_USERNAME:hermannnana@outlook.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 30000
+          timeout: 30000
+          writetimeout: 30000
+    default-encoding: UTF-8
+
+# Configuration du batch pour la production
+batch:
+  ccss:
+    email:
+      enabled: ${EMAIL_ENABLED:true}  # Activer l'email par défaut
+      to: ${EMAIL_TO:hermannnana@outlook.com}
+      subject: "Rapport Télétravail CCSS - {mois}"
+      from: ${MAIL_USERNAME:hermannnana@outlook.com}
+  output:
+    directory: ./output
+
+# Configuration du serveur
+server:
+  port: 8081
+
+# Configuration du logging pour debug
+logging:
+  level:
+    com.intech.batch: DEBUG
+    org.springframework.batch: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n" 
